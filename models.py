@@ -38,6 +38,13 @@ class MisuraCorporea(Base):
     massa_magra = Column(Float)
     bmi = Column(Float)
 
+class Passi(Base):
+    __tablename__ = "passi"
+    id = Column(Integer, primary_key=True)
+    data = Column(Date, nullable=False, unique=True)
+    numero_passi = Column(Integer)
+    distanza_km = Column(Float, nullable=True)
+
 # Crea il database fisico (file fitness.db) se non esiste
 engine = create_engine("sqlite:///fitness.db")
 Base.metadata.create_all(engine)
