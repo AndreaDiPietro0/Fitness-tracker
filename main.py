@@ -101,3 +101,17 @@ def ricevi_passi(dati: PassiInput):
     db.commit()
     db.close()
     return {"status": "ok", "messaggio": "Passi salvati o aggiornati"}
+
+@app.get("/dati/misure-corporee")
+def leggi_misure():
+    db = SessionLocal()
+    risultati = db.query(MisuraCorporea).all()
+    db.close()
+    return risultati
+
+@app.get("/dati/passi")
+def leggi_passi():
+    db = SessionLocal()
+    risultati = db.query(Passi).all()
+    db.close()
+    return risultati
