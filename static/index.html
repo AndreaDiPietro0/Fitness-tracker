@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Fitness Tracker</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; }
+    section { margin-bottom: 40px; border-bottom: 1px solid #ddd; padding-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    td, th { padding: 6px; border-bottom: 1px solid #eee; text-align: left; }
+    input, select, button { padding: 8px; margin: 4px 0; width: 100%; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+  <h1>Fitness Tracker</h1>
+
+  <section>
+    <h2>Passi (ultimi giorni)</h2>
+    <table id="tabella-passi"></table>
+  </section>
+
+  <section>
+    <h2>Misure corporee (ultime)</h2>
+    <table id="tabella-misure"></table>
+  </section>
+
+  <section>
+  <h2>Aggiungi un allenamento</h2>
+  <form id="form-allenamento">
+    <input type="date" id="data" required>
+    <select id="tipo_attivita" required>
+      <option value="">-- Seleziona tipo --</option>
+      <option value="corsa">Corsa</option>
+      <option value="tapis roulant">Tapis roulant</option>
+      <option value="pesi">Pesi</option>
+      <option value="ciclismo">Ciclismo</option>
+      <option value="altro">Altro</option>
+    </select>
+    <input type="number" id="durata_minuti" placeholder="Durata (minuti)" required>
+    <input type="number" id="calorie_stimate" placeholder="Calorie (opzionale)">
+
+    <div id="campi-corsa" style="display: none;">
+      <input type="number" id="frequenza_cardiaca_media" placeholder="Frequenza cardiaca media">
+      <input type="number" id="frequenza_cardiaca_max" placeholder="Frequenza cardiaca max">
+      <input type="number" id="passi_allenamento" placeholder="Passi durante l'allenamento">
+      <input type="number" id="distanza_km" placeholder="Distanza km" step="0.01">
+    </div>
+
+    <button type="submit">Salva allenamento</button>
+  </form>
+  <p id="messaggio-form"></p>
+</section>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -3,8 +3,16 @@ from pydantic import BaseModel
 from datetime import date
 from sqlalchemy.orm import sessionmaker
 from models import engine, Allenamento, Sonno, MisuraCorporea, Pisolino, Passi
+from fastapi.staticfiles import StaticFiles
+
+from anthropic import Anthropic
+from dotenv import load_dotenv
+
+load_dotenv()
+client = Anthropic()
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Sessione = il "canale" attraverso cui parliamo al database
 SessionLocal = sessionmaker(bind=engine)
@@ -16,6 +24,9 @@ class AllenamentoInput(BaseModel):
     durata_minuti: int
     calorie_stimate: float | None = None
     frequenza_cardiaca_media: int | None = None
+    frequenza_cardiaca_max: int | None = None
+    passi_allenamento: int | None = None
+    distanza_km: float | None = None
 
 @app.post("/webhook/allenamento")
 def ricevi_allenamento(dati: AllenamentoInput):
@@ -115,3 +126,129 @@ def leggi_passi():
     risultati = db.query(Passi).all()
     db.close()
     return risultati
+
+
+tools = [
+    {
+        "name": "get_passi",
+        "description": "Restituisce il numero di passi registrati in un intervallo di date",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "data_inizio": {"type": "string", "description": "Data di inizio in formato YYYY-MM-DD"},
+                "data_fine": {"type": "string", "description": "Data di fine in formato YYYY-MM-DD"}
+            },
+            "required": ["data_inizio", "data_fine"]
+        }
+    },
+    {
+        "name": "get_sonno",
+        "description": "Restituisce le ore di sonno registrate in un intervallo di date",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "data_inizio": {"type": "string", "description": "Data di inizio in formato YYYY-MM-DD"},
+                "data_fine": {"type": "string", "description": "Data di fine in formato YYYY-MM-DD"}
+            },
+            "required": ["data_inizio", "data_fine"]
+        }
+    },
+    {
+        "name": "get_allenamenti",
+        "description": "Restituisce gli allenamenti registrati in un intervallo di date, con tipo, durata, calorie e altri dettagli",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "data_inizio": {"type": "string", "description": "Data di inizio in formato YYYY-MM-DD"},
+                "data_fine": {"type": "string", "description": "Data di fine in formato YYYY-MM-DD"}
+            },
+            "required": ["data_inizio", "data_fine"]
+        }
+    },
+    {
+        "name": "get_misure_corporee",
+        "description": "Restituisce peso, IMC, percentuale di grasso e massa magra registrati in un intervallo di date",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "data_inizio": {"type": "string", "description": "Data di inizio in formato YYYY-MM-DD"},
+                "data_fine": {"type": "string", "description": "Data di fine in formato YYYY-MM-DD"}
+            },
+            "required": ["data_inizio", "data_fine"]
+        }
+    }
+]
+
+def esegui_get_passi(data_inizio: str, data_fine: str):
+    db = SessionLocal()
+    risultati = db.query(Passi).filter(Passi.data >= data_inizio, Passi.data <= data_fine).all()
+    db.close()
+    return [{"data": str(r.data), "numero_passi": r.numero_passi} for r in risultati]
+
+def esegui_get_sonno(data_inizio: str, data_fine: str):
+    db = SessionLocal()
+    risultati = db.query(Sonno).filter(Sonno.data >= data_inizio, Sonno.data <= data_fine).all()
+    db.close()
+    return [{"data": str(r.data), "ore_totali": r.ore_totali} for r in risultati]
+
+def esegui_get_allenamenti(data_inizio: str, data_fine: str):
+    db = SessionLocal()
+    risultati = db.query(Allenamento).filter(Allenamento.data >= data_inizio, Allenamento.data <= data_fine).all()
+    db.close()
+    return [{
+        "data": str(r.data), "tipo_attivita": r.tipo_attivita, "durata_minuti": r.durata_minuti,
+        "calorie_stimate": r.calorie_stimate, "distanza_km": r.distanza_km
+    } for r in risultati]
+
+def esegui_get_misure_corporee(data_inizio: str, data_fine: str):
+    db = SessionLocal()
+    risultati = db.query(MisuraCorporea).filter(MisuraCorporea.data >= data_inizio, MisuraCorporea.data <= data_fine).all()
+    db.close()
+    return [{
+        "data": str(r.data), "peso_kg": r.peso_kg, "bmi": r.bmi,
+        "percentuale_grasso": r.percentuale_grasso, "massa_magra": r.massa_magra
+    } for r in risultati]
+
+# Mappa nome tool -> funzione Python da eseguire davvero
+esecutori_tool = {
+    "get_passi": esegui_get_passi,
+    "get_sonno": esegui_get_sonno,
+    "get_allenamenti": esegui_get_allenamenti,
+    "get_misure_corporee": esegui_get_misure_corporee,
+}
+
+class ChatInput(BaseModel):
+    messaggio: str
+
+@app.post("/chat")
+def chatta_con_agente(dati: ChatInput):
+    messaggi = [{"role": "user", "content": dati.messaggio}]
+
+    while True:
+        risposta = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=1000,
+            tools=tools,
+            messages=messaggi
+        )
+
+        if risposta.stop_reason != "tool_use":
+            return {"risposta": risposta.content[0].text}
+
+        messaggi.append({"role": "assistant", "content": risposta.content})
+
+        # Eseguiamo TUTTI i tool richiesti in questo giro (potrebbero essere più di uno)
+        risultati_tool = []
+        for blocco in risposta.content:
+            if blocco.type == "tool_use":
+                funzione = esecutori_tool[blocco.name]
+                risultato = funzione(**blocco.input)
+                risultati_tool.append({
+                    "type": "tool_result",
+                    "tool_use_id": blocco.id,
+                    "content": str(risultato)
+                })
+
+        messaggi.append({"role": "user", "content": risultati_tool})
+        # Il ciclo while ricomincia: mandiamo di nuovo tutto al modello,
+        # che ora deciderà se rispondere o chiamare ancora un altro tool

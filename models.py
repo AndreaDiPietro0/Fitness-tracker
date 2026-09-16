@@ -11,6 +11,9 @@ class Allenamento(Base):
     durata_minuti = Column(Integer)
     calorie_stimate = Column(Float)
     frequenza_cardiaca_media = Column(Integer)
+    frequenza_cardiaca_max = Column(Integer, nullable=True)
+    passi_allenamento = Column(Integer, nullable=True)
+    distanza_km = Column(Float, nullable=True)
 
 class Sonno(Base):
     __tablename__ = "sonno"
