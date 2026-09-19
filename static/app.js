@@ -58,7 +58,7 @@ document.getElementById("form-allenamento").addEventListener("submit", async (ev
     distanza_km: document.getElementById("distanza_km").value
       ? parseFloat(document.getElementById("distanza_km").value) : null,
   };
-
+  
   const risposta = await fetch("/webhook/allenamento", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

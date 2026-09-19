@@ -48,6 +48,11 @@ class Passi(Base):
     numero_passi = Column(Integer)
     distanza_km = Column(Float, nullable=True)
 
-# Crea il database fisico (file fitness.db) se non esiste
-engine = create_engine("sqlite:///fitness.db")
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///fitness.db")
+engine = create_engine(DATABASE_URL)
 Base.metadata.create_all(engine)
