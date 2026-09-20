@@ -113,6 +113,39 @@ async function caricaAllenamenti() {
   });
 }
 
+document.getElementById("form-chat").addEventListener("submit", async (evento) => {
+  evento.preventDefault();
+
+  const input = document.getElementById("messaggio-chat");
+  const messaggioUtente = input.value;
+  const box = document.getElementById("chat-messaggi");
+
+  box.innerHTML += `\n\n👤 Tu: ${messaggioUtente}`;
+  box.scrollTop = box.scrollHeight;
+  input.value = "";
+  input.disabled = true;
+
+  try {
+    const risposta = await fetch("/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": "la-tua-chiave-segreta"
+      },
+      body: JSON.stringify({ messaggio: messaggioUtente })
+    });
+
+    const dati = await risposta.json();
+    box.innerHTML += `\n\n🤖 Agente: ${risposta.ok ? dati.risposta : "Errore: " + dati.detail}`;
+  } catch (errore) {
+    box.innerHTML += `\n\n🤖 Agente: Errore di connessione.`;
+  }
+
+  box.scrollTop = box.scrollHeight;
+  input.disabled = false;
+  input.focus();
+});
+
 // --- Avvio: carica i dati appena la pagina è pronta ---
 caricaPassi();
 caricaMisure();
