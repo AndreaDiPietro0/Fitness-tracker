@@ -95,7 +95,7 @@ async function caricaAllenamenti() {
   const risposta = await fetch("/dati/allenamenti");
   const dati = await risposta.json();
   const tabella = document.getElementById("tabella-allenamenti");
-  tabella.innerHTML = "<tr><th>Data</th><th>Tipo</th><th>Durata (min)</th><th>Calorie</th><th>Distanza (km)</th><th>FC media</th><th>FC max</th><th>Passi</th></tr>";
+  tabella.innerHTML = "<tr><th>Data</th><th>Tipo</th><th>Durata (min)</th><th>Calorie</th><th>Distanza (km)</th><th>FC media</th><th>FC max</th><th>Passi allenamento</th></tr>";
   dati.forEach(record => {
     tabella.innerHTML += `<tr>
       <td>${record.data}</td>
@@ -103,6 +103,9 @@ async function caricaAllenamenti() {
       <td>${record.durata_minuti}</td>
       <td>${record.calorie_stimate ?? "-"}</td>
       <td>${record.distanza_km ?? "-"}</td>
+      <td>${record.frequenza_cardiaca_media}</td>
+      <td>${record.frequenza_cardiaca_max}</td>
+      <td>${record.passi_allenamento}</td>
     </tr>`;
   });
 }
