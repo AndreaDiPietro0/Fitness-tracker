@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from anthropic import Anthropic
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 API_SECRET_KEY = os.getenv("API_SECRET_KEY")
