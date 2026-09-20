@@ -252,3 +252,11 @@ def chatta_con_agente(dati: ChatInput):
         messaggi.append({"role": "user", "content": risultati_tool})
         # Il ciclo while ricomincia: mandiamo di nuovo tutto al modello,
         # che ora deciderà se rispondere o chiamare ancora un altro tool
+
+
+@app.get("/dati/sonno")
+def leggi_sonno():
+    db = SessionLocal()
+    risultati = db.query(Sonno).all()
+    db.close()
+    return risultati

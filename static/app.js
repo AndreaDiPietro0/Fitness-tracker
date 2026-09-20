@@ -58,7 +58,7 @@ document.getElementById("form-allenamento").addEventListener("submit", async (ev
     distanza_km: document.getElementById("distanza_km").value
       ? parseFloat(document.getElementById("distanza_km").value) : null,
   };
-  
+
   const risposta = await fetch("/webhook/allenamento", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -78,3 +78,19 @@ document.getElementById("form-allenamento").addEventListener("submit", async (ev
 // --- Avvio: carica i dati appena la pagina è pronta ---
 caricaPassi();
 caricaMisure();
+
+async function caricaSonno() {
+  const risposta = await fetch("/dati/sonno");
+  const dati = await risposta.json();
+  const tabella = document.getElementById("tabella-sonno");
+  tabella.innerHTML = "<tr><th>Data</th><th>Ore totali</th><th>Leggero</th><th>Profondo</th><th>REM</th></tr>";
+  dati.forEach(record => {
+    tabella.innerHTML += `<tr>
+      <td>${record.data}</td>
+      <td>${record.ore_totali ?? "-"}</td>
+      <td>${record.ore_sonno_leggero ?? "-"}</td>
+      <td>${record.ore_sonno_profondo ?? "-"}</td>
+      <td>${record.ore_sonno_rem ?? "-"}</td>
+    </tr>`;
+  });
+}
