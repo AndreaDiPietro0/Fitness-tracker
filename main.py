@@ -88,11 +88,18 @@ class MisuraCorporeaInput(BaseModel):
 @app.post("/webhook/misura-corporea")
 def ricevi_misura(dati: MisuraCorporeaInput):
     db = SessionLocal()
-    nuovo = MisuraCorporea(**dati.model_dump())
-    db.add(nuovo)
+    esistente = db.query(MisuraCorporea).filter(MisuraCorporea.data == dati.data).first()
+    if esistente:
+        esistente.peso_kg = dati.peso_kg
+        esistente.bmi = dati.bmi
+        esistente.percentuale_grasso = dati.percentuale_grasso
+        esistente.massa_magra = dati.massa_magra
+    else:
+        nuovo = MisuraCorporea(**dati.model_dump())
+        db.add(nuovo)
     db.commit()
     db.close()
-    return {"status": "ok", "messaggio": "Misura salvata"}
+    return {"status": "ok", "messaggio": "Misura salvata o aggiornata"}
 
 class PassiInput(BaseModel):
     data: date
