@@ -75,10 +75,6 @@ document.getElementById("form-allenamento").addEventListener("submit", async (ev
   }
 });
 
-// --- Avvio: carica i dati appena la pagina è pronta ---
-caricaPassi();
-caricaMisure();
-
 async function caricaSonno() {
   const risposta = await fetch("/dati/sonno");
   const dati = await risposta.json();
@@ -94,3 +90,9 @@ async function caricaSonno() {
     </tr>`;
   });
 }
+
+// --- Avvio: carica i dati appena la pagina è pronta ---
+caricaPassi();
+caricaMisure();
+caricaSonno();
+
