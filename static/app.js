@@ -95,7 +95,7 @@ async function caricaAllenamenti() {
   const risposta = await fetch("/dati/allenamenti");
   const dati = await risposta.json();
   const tabella = document.getElementById("tabella-allenamenti");
-  tabella.innerHTML = "<tr><th>Data</th><th>Tipo</th><th>Durata (min)</th><th>Calorie</th><th>Distanza (km)</th></tr>";
+  tabella.innerHTML = "<tr><th>Data</th><th>Tipo</th><th>Durata (min)</th><th>Calorie</th><th>Distanza (km)</th><th>FC media</th><th>FC max</th><th>Passi</th></tr>";
   dati.forEach(record => {
     tabella.innerHTML += `<tr>
       <td>${record.data}</td>
