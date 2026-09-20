@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException, Depends
 from pydantic import BaseModel
 from datetime import date
 from sqlalchemy.orm import sessionmaker
@@ -9,6 +9,12 @@ from anthropic import Anthropic
 from dotenv import load_dotenv
 
 load_dotenv()
+API_SECRET_KEY = os.getenv("API_SECRET_KEY")
+
+def verifica_chiave(x_api_key: str = Header(None)):
+    if x_api_key != API_SECRET_KEY:
+        raise HTTPException(status_code=401, detail="Chiave API non valida o mancante")
+    
 client = Anthropic()
 
 app = FastAPI()
@@ -29,7 +35,7 @@ class AllenamentoInput(BaseModel):
     distanza_km: float | None = None
 
 @app.post("/webhook/allenamento")
-def ricevi_allenamento(dati: AllenamentoInput):
+def ricevi_allenamento(dati: AllenamentoInput, _=Depends(verifica_chiave)):
     db = SessionLocal()
     nuovo = Allenamento(**dati.model_dump())
     db.add(nuovo)
@@ -46,7 +52,7 @@ class SonnoInput(BaseModel):
     qualita_percepita: int | None = None
 
 @app.post("/webhook/sonno")
-def ricevi_sonno(dati: SonnoInput):
+def ricevi_sonno(dati: SonnoInput, _=Depends(verifica_chiave)):
     db = SessionLocal()
     esistente = db.query(Sonno).filter(Sonno.data == dati.data).first()
     if esistente:
@@ -86,7 +92,7 @@ class MisuraCorporeaInput(BaseModel):
     bmi: float | None = None
 
 @app.post("/webhook/misura-corporea")
-def ricevi_misura(dati: MisuraCorporeaInput):
+def ricevi_misura(dati: MisuraCorporeaInput, _=Depends(verifica_chiave)):
     db = SessionLocal()
     esistente = db.query(MisuraCorporea).filter(MisuraCorporea.data == dati.data).first()
     if esistente:
@@ -107,7 +113,7 @@ class PassiInput(BaseModel):
     distanza_km: float | None = None
 
 @app.post("/webhook/passi")
-def ricevi_passi(dati: PassiInput):
+def ricevi_passi(dati: PassiInput, _=Depends(verifica_chiave)):
     db = SessionLocal()
     esistente = db.query(Passi).filter(Passi.data == dati.data).first()
     if esistente:
@@ -228,7 +234,7 @@ class ChatInput(BaseModel):
     messaggio: str
 
 @app.post("/chat")
-def chatta_con_agente(dati: ChatInput):
+def chatta_con_agente(dati: ChatInput, _=Depends(verifica_chiave)):
     messaggi = [{"role": "user", "content": dati.messaggio}]
 
     while True:

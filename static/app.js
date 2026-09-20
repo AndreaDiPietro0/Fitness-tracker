@@ -59,11 +59,14 @@ document.getElementById("form-allenamento").addEventListener("submit", async (ev
       ? parseFloat(document.getElementById("distanza_km").value) : null,
   };
 
-  const risposta = await fetch("/webhook/allenamento", {
+const risposta = await fetch("/webhook/allenamento", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+        "Content-Type": "application/json",
+        "X-API-Key": "hQ8TYqmqnU6BQmxoPgJaCzX53cr0PrM8v5qo3DP15ok"
+    },
     body: JSON.stringify(corpo)
-  });
+});
 
   const messaggio = document.getElementById("messaggio-form");
   if (risposta.ok) {
