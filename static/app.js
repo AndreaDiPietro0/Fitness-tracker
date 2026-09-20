@@ -130,7 +130,7 @@ document.getElementById("form-chat").addEventListener("submit", async (evento) =
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-API-Key": "la-tua-chiave-segreta"
+        "X-API-Key": "hQ8TYqmqnU6BQmxoPgJaCzX53cr0PrM8v5qo3DP15ok"
       },
       body: JSON.stringify({ messaggio: messaggioUtente })
     });
