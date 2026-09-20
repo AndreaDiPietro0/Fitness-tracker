@@ -91,8 +91,25 @@ async function caricaSonno() {
   });
 }
 
+async function caricaAllenamenti() {
+  const risposta = await fetch("/dati/allenamenti");
+  const dati = await risposta.json();
+  const tabella = document.getElementById("tabella-allenamenti");
+  tabella.innerHTML = "<tr><th>Data</th><th>Tipo</th><th>Durata (min)</th><th>Calorie</th><th>Distanza (km)</th></tr>";
+  dati.forEach(record => {
+    tabella.innerHTML += `<tr>
+      <td>${record.data}</td>
+      <td>${record.tipo_attivita}</td>
+      <td>${record.durata_minuti}</td>
+      <td>${record.calorie_stimate ?? "-"}</td>
+      <td>${record.distanza_km ?? "-"}</td>
+    </tr>`;
+  });
+}
+
 // --- Avvio: carica i dati appena la pagina è pronta ---
 caricaPassi();
 caricaMisure();
 caricaSonno();
+caricaAllenamenti();
 

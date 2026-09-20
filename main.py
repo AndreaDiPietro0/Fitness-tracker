@@ -267,3 +267,10 @@ def leggi_sonno():
     risultati = db.query(Sonno).all()
     db.close()
     return risultati
+
+@app.get("/dati/allenamenti")
+def leggi_allenamenti():
+    db = SessionLocal()
+    risultati = db.query(Allenamento).all()
+    db.close()
+    return risultati
