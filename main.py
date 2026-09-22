@@ -206,7 +206,13 @@ def esegui_get_sonno(data_inizio: str, data_fine: str):
     db = SessionLocal()
     risultati = db.query(Sonno).filter(Sonno.data >= data_inizio, Sonno.data <= data_fine).all()
     db.close()
-    return [{"data": str(r.data), "ore_totali": r.ore_totali} for r in risultati]
+    return [{
+        "data": str(r.data),
+        "ore_totali": r.ore_totali,
+        "ore_sonno_leggero": r.ore_sonno_leggero,
+        "ore_sonno_profondo": r.ore_sonno_profondo,
+        "ore_sonno_rem": r.ore_sonno_rem
+    } for r in risultati]
 
 def esegui_get_allenamenti(data_inizio: str, data_fine: str):
     db = SessionLocal()
