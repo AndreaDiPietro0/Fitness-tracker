@@ -27,6 +27,19 @@
   <section>
   <h2>Sonno (ultimi giorni)</h2>
   <table id="tabella-sonno"></table>
+  </section>
+
+  <section>
+  <h2>Aggiungi/aggiorna dati sonno</h2>
+  <form id="form-sonno">
+    <input type="date" id="data-sonno" required>
+    <input type="number" id="ore_totali" placeholder="Ore totali di sonno" step="0.1" required>
+    <input type="number" id="ore_sonno_leggero" placeholder="Ore sonno leggero (opzionale)" step="0.1">
+    <input type="number" id="ore_sonno_profondo" placeholder="Ore sonno profondo (opzionale)" step="0.1">
+    <input type="number" id="ore_sonno_rem" placeholder="Ore sonno REM (opzionale)" step="0.1">
+    <button type="submit">Salva sonno</button>
+  </form>
+  <p id="messaggio-form-sonno"></p>
 </section>
 
   <section>

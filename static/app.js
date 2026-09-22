@@ -94,6 +94,37 @@ async function caricaSonno() {
   });
 }
 
+document.getElementById("form-sonno").addEventListener("submit", async (evento) => {
+  evento.preventDefault();
+
+  const corpo = {
+    data: document.getElementById("data-sonno").value,
+    ore_totali: parseFloat(document.getElementById("ore_totali").value),
+    ore_sonno_leggero: document.getElementById("ore_sonno_leggero").value
+      ? parseFloat(document.getElementById("ore_sonno_leggero").value) : null,
+    ore_sonno_profondo: document.getElementById("ore_sonno_profondo").value
+      ? parseFloat(document.getElementById("ore_sonno_profondo").value) : null,
+    ore_sonno_rem: document.getElementById("ore_sonno_rem").value
+      ? parseFloat(document.getElementById("ore_sonno_rem").value) : null,
+  };
+
+  const risposta = await fetch("/webhook/sonno", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-API-Key": "la-tua-chiave-segreta-nuova"
+    },
+    body: JSON.stringify(corpo)
+  });
+
+  const messaggio = document.getElementById("messaggio-form-sonno");
+  messaggio.textContent = risposta.ok ? "Sonno salvato!" : "Errore nel salvataggio.";
+  if (risposta.ok) {
+    document.getElementById("form-sonno").reset();
+    caricaSonno(); // ricarica la tabella per mostrare subito l'aggiornamento
+  }
+});
+
 async function caricaAllenamenti() {
   const risposta = await fetch("/dati/allenamenti");
   const dati = await risposta.json();
