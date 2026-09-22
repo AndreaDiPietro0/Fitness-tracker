@@ -46,22 +46,25 @@ def ricevi_allenamento(dati: AllenamentoInput, _=Depends(verifica_chiave)):
 
 class SonnoInput(BaseModel):
     data: date
-    ore_totali: float
+    ore_totali: float | None = None
     ore_sonno_leggero: float | None = None
     ore_sonno_profondo: float | None = None
     ore_sonno_rem: float | None = None
     qualita_percepita: int | None = None
 
 @app.post("/webhook/sonno")
-def ricevi_sonno(dati: SonnoInput, _=Depends(verifica_chiave)):
+def ricevi_sonno(dati: SonnoInput):
     db = SessionLocal()
     esistente = db.query(Sonno).filter(Sonno.data == dati.data).first()
     if esistente:
-        esistente.ore_totali = dati.ore_totali
-        esistente.ore_sonno_leggero = dati.ore_sonno_leggero
-        esistente.ore_sonno_profondo = dati.ore_sonno_profondo
-        esistente.ore_sonno_rem = dati.ore_sonno_rem
-        esistente.qualita_percepita = dati.qualita_percepita
+        if dati.ore_totali is not None:
+            esistente.ore_totali = dati.ore_totali
+        if dati.ore_sonno_leggero is not None:
+            esistente.ore_sonno_leggero = dati.ore_sonno_leggero
+        if dati.ore_sonno_profondo is not None:
+            esistente.ore_sonno_profondo = dati.ore_sonno_profondo
+        if dati.ore_sonno_rem is not None:
+            esistente.ore_sonno_rem = dati.ore_sonno_rem
     else:
         nuovo = Sonno(**dati.model_dump())
         db.add(nuovo)

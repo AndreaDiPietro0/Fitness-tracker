@@ -82,48 +82,46 @@ async function caricaSonno() {
   const risposta = await fetch("/dati/sonno");
   const dati = await risposta.json();
   const tabella = document.getElementById("tabella-sonno");
-  tabella.innerHTML = "<tr><th>Data</th><th>Ore totali</th><th>Leggero</th><th>Profondo</th><th>REM</th></tr>";
+  tabella.innerHTML = "<tr><th>Data</th><th>Ore totali</th><th>Leggero</th><th>Profondo</th><th>REM</th><th></th></tr>";
   dati.forEach(record => {
     tabella.innerHTML += `<tr>
       <td>${record.data}</td>
       <td>${record.ore_totali ?? "-"}</td>
-      <td>${record.ore_sonno_leggero ?? "-"}</td>
-      <td>${record.ore_sonno_profondo ?? "-"}</td>
-      <td>${record.ore_sonno_rem ?? "-"}</td>
+      <td><input type="number" step="0.01" class="input-leggero" data-data="${record.data}" value="${record.ore_sonno_leggero ?? ""}"></td>
+      <td><input type="number" step="0.01" class="input-profondo" data-data="${record.data}" value="${record.ore_sonno_profondo ?? ""}"></td>
+      <td><input type="number" step="0.01" class="input-rem" data-data="${record.data}" value="${record.ore_sonno_rem ?? ""}"></td>
+      <td><button onclick="salvaFasiSonno('${record.data}')">Salva</button></td>
     </tr>`;
   });
 }
 
-document.getElementById("form-sonno").addEventListener("submit", async (evento) => {
-  evento.preventDefault();
+async function salvaFasiSonno(data) {
+  const leggero = document.querySelector(`.input-leggero[data-data="${data}"]`).value;
+  const profondo = document.querySelector(`.input-profondo[data-data="${data}"]`).value;
+  const rem = document.querySelector(`.input-rem[data-data="${data}"]`).value;
 
   const corpo = {
-    data: document.getElementById("data-sonno").value,
-    ore_totali: parseFloat(document.getElementById("ore_totali").value),
-    ore_sonno_leggero: document.getElementById("ore_sonno_leggero").value
-      ? parseFloat(document.getElementById("ore_sonno_leggero").value) : null,
-    ore_sonno_profondo: document.getElementById("ore_sonno_profondo").value
-      ? parseFloat(document.getElementById("ore_sonno_profondo").value) : null,
-    ore_sonno_rem: document.getElementById("ore_sonno_rem").value
-      ? parseFloat(document.getElementById("ore_sonno_rem").value) : null,
+    data: data,
+    ore_sonno_leggero: leggero ? parseFloat(leggero) : null,
+    ore_sonno_profondo: profondo ? parseFloat(profondo) : null,
+    ore_sonno_rem: rem ? parseFloat(rem) : null,
   };
 
   const risposta = await fetch("/webhook/sonno", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-API-Key": "la-tua-chiave-segreta-nuova"
+      "X-API-Key": "la-tua-chiave-nuova"
     },
     body: JSON.stringify(corpo)
   });
 
-  const messaggio = document.getElementById("messaggio-form-sonno");
-  messaggio.textContent = risposta.ok ? "Sonno salvato!" : "Errore nel salvataggio.";
   if (risposta.ok) {
-    document.getElementById("form-sonno").reset();
-    caricaSonno(); // ricarica la tabella per mostrare subito l'aggiornamento
+    caricaSonno();
+  } else {
+    alert("Errore nel salvataggio");
   }
-});
+}
 
 async function caricaAllenamenti() {
   const risposta = await fetch("/dati/allenamenti");
