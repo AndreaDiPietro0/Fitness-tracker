@@ -84,6 +84,11 @@
   #form-chat button { width: auto; }
   #campi-corsa { margin-top: 4px; }
   p#messaggio-form, p#messaggio-form-sonno { color: var(--text-secondary); font-size: 14px; }
+
+  .table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 </style>
 </head>
 <body>
@@ -115,7 +120,9 @@
 
   <section class="card">
     <h2>Sonno</h2>
-    <table id="tabella-sonno"></table>
+    <div class="table-scroll">
+      <table id="tabella-sonno"></table>
+    </div>
   </section>
 
   <section class="card">
@@ -141,7 +148,9 @@
       <button type="submit">Salva allenamento</button>
     </form>
     <p id="messaggio-form"></p>
-    <table id="tabella-allenamenti" style="margin-top: 16px;"></table>
+    <div class="table-scroll">
+      <table id="tabella-allenamenti" style="margin-top: 16px;"></table>
+    </div>
   </section>
 
 </div>
