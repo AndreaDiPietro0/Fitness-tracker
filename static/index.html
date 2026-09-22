@@ -1,75 +1,150 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Fitness Tracker</title>
-  <style>
-    body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; }
-    section { margin-bottom: 40px; border-bottom: 1px solid #ddd; padding-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; }
-    td, th { padding: 6px; border-bottom: 1px solid #eee; text-align: left; }
-    input, select, button { padding: 8px; margin: 4px 0; width: 100%; box-sizing: border-box; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fitness Tracker</title>
+<style>
+  :root {
+    --bg: #F5F5F7;
+    --card: #FFFFFF;
+    --text: #1D1D1F;
+    --text-secondary: #6E6E73;
+    --accent: #0071E3;
+    --border: #D2D2D7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 32px 20px 80px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  header { margin-bottom: 32px; }
+  h1 { font-size: 28px; font-weight: 600; margin: 0; }
+  h2 { font-size: 17px; font-weight: 600; margin: 0 0 16px; }
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .grid .card { margin-bottom: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; color: var(--text-secondary); font-weight: 500; padding: 8px 6px; font-size: 12px; }
+  td { padding: 8px 6px; border-top: 1px solid var(--border); }
+  input, select, button {
+    font-family: inherit;
+    font-size: 15px;
+    padding: 10px 12px;
+    margin: 6px 0;
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--text);
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
+  }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    width: auto;
+    padding: 10px 20px;
+  }
+  button:hover { background: #0064c9; }
+  table input, table button { margin: 0; padding: 6px 8px; font-size: 13px; }
+  #chat-messaggi {
+    height: 280px;
+    overflow-y: auto;
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  #form-chat { display: flex; gap: 8px; }
+  #form-chat input { margin: 0; flex: 1; }
+  #form-chat button { width: auto; }
+  #campi-corsa { margin-top: 4px; }
+  p#messaggio-form, p#messaggio-form-sonno { color: var(--text-secondary); font-size: 14px; }
+</style>
 </head>
 <body>
-  <h1>Fitness Tracker</h1>
+<div class="wrap">
 
-  <section>
-    <h2>Passi (ultimi giorni)</h2>
-    <table id="tabella-passi"></table>
+  <header>
+    <h1>Fitness Tracker</h1>
+  </header>
+
+  <section class="card">
+    <h2>Chiedi al tuo agente</h2>
+    <div id="chat-messaggi"></div>
+    <form id="form-chat">
+      <input type="text" id="messaggio-chat" placeholder="Quanti passi ho fatto questa settimana?" required>
+      <button type="submit">Invia</button>
+    </form>
   </section>
 
-  <section>
-    <h2>Misure corporee (ultime)</h2>
-    <table id="tabella-misure"></table>
-  </section>
-
-  <section>
-  <h2>Sonno (ultimi giorni)</h2>
-  <table id="tabella-sonno"></table>
-  </section>
-
-  <section>
-  <h2>Aggiungi un allenamento</h2>
-  <form id="form-allenamento">
-    <input type="date" id="data" required>
-    <select id="tipo_attivita" required>
-      <option value="">-- Seleziona tipo --</option>
-      <option value="corsa">Corsa</option>
-      <option value="tapis roulant">Tapis roulant</option>
-      <option value="pesi">Pesi</option>
-      <option value="ciclismo">Ciclismo</option>
-      <option value="altro">Altro</option>
-    </select>
-    <input type="number" id="durata_minuti" placeholder="Durata (minuti)" required>
-    <input type="number" id="calorie_stimate" placeholder="Calorie (opzionale)">
-
-    <div id="campi-corsa" style="display: none;">
-      <input type="number" id="frequenza_cardiaca_media" placeholder="Frequenza cardiaca media">
-      <input type="number" id="frequenza_cardiaca_max" placeholder="Frequenza cardiaca max">
-      <input type="number" id="passi_allenamento" placeholder="Passi durante l'allenamento">
-      <input type="number" id="distanza_km" placeholder="Distanza km" step="0.01">
+  <div class="grid">
+    <div class="card">
+      <h2>Passi</h2>
+      <table id="tabella-passi"></table>
     </div>
+    <div class="card">
+      <h2>Misure corporee</h2>
+      <table id="tabella-misure"></table>
+    </div>
+  </div>
 
-    <button type="submit">Salva allenamento</button>
-  </form>
-  <p id="messaggio-form"></p>
-</section>
+  <section class="card">
+    <h2>Sonno</h2>
+    <table id="tabella-sonno"></table>
+  </section>
 
-<section>
-  <h2>Allenamenti</h2>
-  <table id="tabella-allenamenti"></table>
-</section>
+  <section class="card">
+    <h2>Allenamenti</h2>
+    <form id="form-allenamento">
+      <input type="date" id="data" required>
+      <select id="tipo_attivita" required>
+        <option value="">Seleziona tipo</option>
+        <option value="corsa">Corsa</option>
+        <option value="tapis roulant">Tapis roulant</option>
+        <option value="pesi">Pesi</option>
+        <option value="ciclismo">Ciclismo</option>
+        <option value="altro">Altro</option>
+      </select>
+      <input type="number" id="durata_minuti" placeholder="Durata (minuti)" required>
+      <input type="number" id="calorie_stimate" placeholder="Calorie (opzionale)">
+      <div id="campi-corsa" style="display: none;">
+        <input type="number" id="frequenza_cardiaca_media" placeholder="Frequenza cardiaca media">
+        <input type="number" id="frequenza_cardiaca_max" placeholder="Frequenza cardiaca max">
+        <input type="number" id="passi_allenamento" placeholder="Passi durante l'allenamento">
+        <input type="number" id="distanza_km" placeholder="Distanza km" step="0.01">
+      </div>
+      <button type="submit">Salva allenamento</button>
+    </form>
+    <p id="messaggio-form"></p>
+    <table id="tabella-allenamenti" style="margin-top: 16px;"></table>
+  </section>
 
-<section>
-  <h2>Chiedi al tuo agente</h2>
-  <div id="chat-messaggi" style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; white-space: pre-wrap;"></div>
-  <form id="form-chat">
-    <input type="text" id="messaggio-chat" placeholder="Es: quanti passi ho fatto questa settimana?" required style="width: 80%;">
-    <button type="submit" style="width: 18%;">Invia</button>
-  </form>
-</section>
-
-  <script src="/static/app.js"></script>
+</div>
+<script src="/static/app.js"></script>
 </body>
 </html>
