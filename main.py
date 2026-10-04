@@ -242,25 +242,37 @@ esecutori_tool = {
 
 class ChatInput(BaseModel):
     messaggio: str
+    storico: list[dict] | None = None
 
 @app.post("/chat")
 def chatta_con_agente(dati: ChatInput, _=Depends(verifica_chiave)):
-    messaggi = [{"role": "user", "content": dati.messaggio}]
+    messaggi = (dati.storico or []) + [{"role": "user", "content": dati.messaggio}]
+
+    system_prompt = """Sei un assistente che analizza i dati fitness personali dell'utente (passi, sonno, allenamenti, misure corporee).
+
+REGOLE IMPORTANTI:
+- Usa SEMPRE i tool disponibili per rispondere a domande su dati specifici. Non inventare mai numeri.
+- Se un tool non restituisce dati per il periodo richiesto, dillo chiaramente (es. "non ho trovato dati per quel periodo") invece di stimare o indovinare.
+- Non dare consigli medici, nutrizionali o di allenamento: limitati ad analizzare i dati raccolti.
+- Se la domanda è ambigua su quale periodo di date intendere, chiedi chiarimento invece di assumere."""
 
     while True:
         risposta = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=1000,
+            system=system_prompt,
             tools=tools,
             messages=messaggi
         )
 
         if risposta.stop_reason != "tool_use":
-            return {"risposta": risposta.content[0].text}
+            return {
+                "risposta": risposta.content[0].text,
+                "storico": messaggi + [{"role": "assistant", "content": risposta.content[0].text}]
+            }
 
         messaggi.append({"role": "assistant", "content": risposta.content})
 
-        # Eseguiamo TUTTI i tool richiesti in questo giro (potrebbero essere più di uno)
         risultati_tool = []
         for blocco in risposta.content:
             if blocco.type == "tool_use":
@@ -273,8 +285,6 @@ def chatta_con_agente(dati: ChatInput, _=Depends(verifica_chiave)):
                 })
 
         messaggi.append({"role": "user", "content": risultati_tool})
-        # Il ciclo while ricomincia: mandiamo di nuovo tutto al modello,
-        # che ora deciderà se rispondere o chiamare ancora un altro tool
 
 
 @app.get("/dati/sonno")

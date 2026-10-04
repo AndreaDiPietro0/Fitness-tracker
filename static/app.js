@@ -2,6 +2,8 @@
 const selectTipo = document.getElementById("tipo_attivita");
 const campiCorsa = document.getElementById("campi-corsa");
 
+let storicoChat = [];
+
 selectTipo.addEventListener("change", () => {
   const tipiConDettagli = ["corsa", "tapis roulant"];
   if (tipiConDettagli.includes(selectTipo.value)) {
@@ -227,11 +229,16 @@ document.getElementById("form-chat").addEventListener("submit", async (evento) =
         "Content-Type": "application/json",
         "X-API-Key": "hQ8TYqmqnU6BQmxoPgJaCzX53cr0PrM8v5qo3DP15ok"
       },
-      body: JSON.stringify({ messaggio: messaggioUtente })
+      body: JSON.stringify({ messaggio: messaggioUtente, storico: storicoChat })
     });
 
     const dati = await risposta.json();
-    box.innerHTML += `\n\n🤖 Agente: ${risposta.ok ? dati.risposta : "Errore: " + dati.detail}`;
+    if (risposta.ok) {
+      box.innerHTML += `\n\n🤖 Agente: ${dati.risposta}`;
+      storicoChat = dati.storico;
+    } else {
+      box.innerHTML += `\n\n🤖 Agente: Errore: ${dati.detail}`;
+    }
   } catch (errore) {
     box.innerHTML += `\n\n🤖 Agente: Errore di connessione.`;
   }
