@@ -53,7 +53,7 @@ document.getElementById("form-passi").addEventListener("submit", async (evento) 
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-API-Key": "la-tua-chiave-attuale"
+      "X-API-Key": "hQ8TYqmqnU6BQmxoPgJaCzX53cr0PrM8v5qo3DP15ok"
     },
     body: JSON.stringify(corpo)
   });
@@ -84,7 +84,7 @@ document.getElementById("form-sonno-manuale").addEventListener("submit", async (
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-API-Key": "la-tua-chiave-attuale"
+      "X-API-Key": "hQ8TYqmqnU6BQmxoPgJaCzX53cr0PrM8v5qo3DP15ok"
     },
     body: JSON.stringify(corpo)
   });
@@ -170,7 +170,7 @@ async function salvaFasiSonno(data) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-API-Key": "la-tua-chiave-nuova"
+      "X-API-Key": "hQ8TYqmqnU6BQmxoPgJaCzX53cr0PrM8v5qo3DP15ok"
     },
     body: JSON.stringify(corpo)
   });
