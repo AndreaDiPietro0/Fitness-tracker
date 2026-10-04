@@ -290,3 +290,35 @@ def leggi_allenamenti():
     risultati = db.query(Allenamento).all()
     db.close()
     return risultati
+
+@app.delete("/webhook/passi/{data}")
+def elimina_passi(data: str, _=Depends(verifica_chiave)):
+    db = SessionLocal()
+    db.query(Passi).filter(Passi.data == data).delete()
+    db.commit()
+    db.close()
+    return {"status": "ok"}
+
+@app.delete("/webhook/sonno/{data}")
+def elimina_sonno(data: str, _=Depends(verifica_chiave)):
+    db = SessionLocal()
+    db.query(Sonno).filter(Sonno.data == data).delete()
+    db.commit()
+    db.close()
+    return {"status": "ok"}
+
+@app.delete("/webhook/misura-corporea/{data}")
+def elimina_misura(data: str, _=Depends(verifica_chiave)):
+    db = SessionLocal()
+    db.query(MisuraCorporea).filter(MisuraCorporea.data == data).delete()
+    db.commit()
+    db.close()
+    return {"status": "ok"}
+
+@app.delete("/webhook/allenamento/{id_allenamento}")
+def elimina_allenamento(id_allenamento: int, _=Depends(verifica_chiave)):
+    db = SessionLocal()
+    db.query(Allenamento).filter(Allenamento.id == id_allenamento).delete()
+    db.commit()
+    db.close()
+    return {"status": "ok"}

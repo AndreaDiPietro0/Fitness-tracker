@@ -16,9 +16,13 @@ async function caricaPassi() {
   const risposta = await fetch("/dati/passi");
   const dati = await risposta.json();
   const tabella = document.getElementById("tabella-passi");
-  tabella.innerHTML = "<tr><th>Data</th><th>Passi</th></tr>";
+  tabella.innerHTML = "<tr><th>Data</th><th>Passi</th><th></th></tr>";
   dati.forEach(record => {
-    tabella.innerHTML += `<tr><td>${record.data}</td><td>${record.numero_passi}</td></tr>`;
+    tabella.innerHTML += `<tr>
+      <td>${record.data}</td>
+      <td>${record.numero_passi}</td>
+      <td><button onclick="eliminaDato('passi', '${record.data}')">Elimina</button></td>
+    </tr>`;
   });
 }
 
@@ -27,7 +31,7 @@ async function caricaMisure() {
   const risposta = await fetch("/dati/misure-corporee");
   const dati = await risposta.json();
   const tabella = document.getElementById("tabella-misure");
-  tabella.innerHTML = "<tr><th>Data</th><th>Peso (kg)</th><th>IMC</th><th>% Grasso</th><th>Massa magra (kg)</th></tr>";
+  tabella.innerHTML = "<tr><th>Data</th><th>Peso (kg)</th><th>IMC</th><th>% Grasso</th><th>Massa magra (kg)</th><th></th></tr>";
   dati.forEach(record => {
     tabella.innerHTML += `<tr>
       <td>${record.data}</td>
@@ -35,6 +39,7 @@ async function caricaMisure() {
       <td>${record.bmi ?? "-"}</td>
       <td>${record.percentuale_grasso ?? "-"}</td>
       <td>${record.massa_magra ?? "-"}</td>
+      <td><button onclick="eliminaDato('misura-corporea', '${record.data}')">Elimina</button></td>
     </tr>`;
   });
 }
@@ -141,7 +146,7 @@ async function caricaSonno() {
   const risposta = await fetch("/dati/sonno");
   const dati = await risposta.json();
   const tabella = document.getElementById("tabella-sonno");
-  tabella.innerHTML = "<tr><th>Data</th><th>Ore totali</th><th>Leggero</th><th>Profondo</th><th>REM</th><th></th></tr>";
+  tabella.innerHTML = "<tr><th>Data</th><th>Ore totali</th><th>Leggero</th><th>Profondo</th><th>REM</th><th></th><th></th></tr>";
   dati.forEach(record => {
     tabella.innerHTML += `<tr>
       <td>${record.data}</td>
@@ -150,6 +155,7 @@ async function caricaSonno() {
       <td><input type="number" step="0.01" class="input-profondo" data-data="${record.data}" value="${record.ore_sonno_profondo ?? ""}"></td>
       <td><input type="number" step="0.01" class="input-rem" data-data="${record.data}" value="${record.ore_sonno_rem ?? ""}"></td>
       <td><button onclick="salvaFasiSonno('${record.data}')">Salva</button></td>
+      <td><button onclick="eliminaDato('sonno', '${record.data}')">Elimina</button></td>
     </tr>`;
   });
 }
@@ -186,7 +192,7 @@ async function caricaAllenamenti() {
   const risposta = await fetch("/dati/allenamenti");
   const dati = await risposta.json();
   const tabella = document.getElementById("tabella-allenamenti");
-  tabella.innerHTML = "<tr><th>Data</th><th>Tipo</th><th>Durata (min)</th><th>Calorie</th><th>Distanza (km)</th><th>FC media</th><th>FC max</th><th>Passi allenamento</th></tr>";
+  tabella.innerHTML = "<tr><th>Data</th><th>Tipo</th><th>Durata (min)</th><th>Calorie</th><th>Distanza (km)</th><th>FC media</th><th>FC max</th><th>Passi allenamento</th><th></th></tr>";
   dati.forEach(record => {
     tabella.innerHTML += `<tr>
       <td>${record.data}</td>
@@ -194,9 +200,10 @@ async function caricaAllenamenti() {
       <td>${record.durata_minuti}</td>
       <td>${record.calorie_stimate ?? "-"}</td>
       <td>${record.distanza_km ?? "-"}</td>
-      <td>${record.frequenza_cardiaca_media}</td>
-      <td>${record.frequenza_cardiaca_max}</td>
-      <td>${record.passi_allenamento}</td>
+      <td>${record.frequenza_cardiaca_media ?? "-"}</td>
+      <td>${record.frequenza_cardiaca_max ?? "-"}</td>
+      <td>${record.passi_allenamento ?? "-"}</td>
+      <td><button onclick="eliminaAllenamento(${record.id})">Elimina</button></td>
     </tr>`;
   });
 }
@@ -233,6 +240,38 @@ document.getElementById("form-chat").addEventListener("submit", async (evento) =
   input.disabled = false;
   input.focus();
 });
+
+async function eliminaDato(tipo, data) {
+  if (!confirm(`Eliminare il dato di ${tipo} del ${data}?`)) return;
+
+  const risposta = await fetch(`/webhook/${tipo}/${data}`, {
+    method: "DELETE",
+    headers: { "X-API-Key": "hQ8TYqmqnU6BQmxoPgJaCzX53cr0PrM8v5qo3DP15ok" }
+  });
+
+  if (risposta.ok) {
+    if (tipo === "passi") caricaPassi();
+    if (tipo === "sonno") caricaSonno();
+    if (tipo === "misura-corporea") caricaMisure();
+  } else {
+    alert("Errore nell'eliminazione");
+  }
+}
+
+async function eliminaAllenamento(id) {
+  if (!confirm("Eliminare questo allenamento?")) return;
+
+  const risposta = await fetch(`/webhook/allenamento/${id}`, {
+    method: "DELETE",
+    headers: { "X-API-Key": "hQ8TYqmqnU6BQmxoPgJaCzX53cr0PrM8v5qo3DP15ok" }
+  });
+
+  if (risposta.ok) {
+    caricaAllenamenti();
+  } else {
+    alert("Errore nell'eliminazione");
+  }
+}
 
 // --- Avvio: carica i dati appena la pagina è pronta ---
 caricaPassi();
