@@ -39,6 +39,65 @@ async function caricaMisure() {
   });
 }
 
+document.getElementById("form-passi").addEventListener("submit", async (evento) => {
+  evento.preventDefault();
+
+  const corpo = {
+    data: document.getElementById("data-passi").value,
+    numero_passi: parseInt(document.getElementById("numero_passi").value),
+    distanza_km: document.getElementById("distanza_km_passi").value
+      ? parseFloat(document.getElementById("distanza_km_passi").value) : null,
+  };
+
+  const risposta = await fetch("/webhook/passi", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-API-Key": "la-tua-chiave-attuale"
+    },
+    body: JSON.stringify(corpo)
+  });
+
+  const messaggio = document.getElementById("messaggio-form-passi");
+  messaggio.textContent = risposta.ok ? "Passi salvati!" : "Errore nel salvataggio.";
+  if (risposta.ok) {
+    document.getElementById("form-passi").reset();
+    caricaPassi();
+  }
+});
+
+document.getElementById("form-sonno-manuale").addEventListener("submit", async (evento) => {
+  evento.preventDefault();
+
+  const corpo = {
+    data: document.getElementById("data-sonno-manuale").value,
+    ore_totali: parseFloat(document.getElementById("ore_totali_manuale").value),
+    ore_sonno_leggero: document.getElementById("leggero_manuale").value
+      ? parseFloat(document.getElementById("leggero_manuale").value) : null,
+    ore_sonno_profondo: document.getElementById("profondo_manuale").value
+      ? parseFloat(document.getElementById("profondo_manuale").value) : null,
+    ore_sonno_rem: document.getElementById("rem_manuale").value
+      ? parseFloat(document.getElementById("rem_manuale").value) : null,
+  };
+
+  const risposta = await fetch("/webhook/sonno", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-API-Key": "la-tua-chiave-attuale"
+    },
+    body: JSON.stringify(corpo)
+  });
+
+  const messaggio = document.getElementById("messaggio-form-sonno-manuale");
+  messaggio.textContent = risposta.ok ? "Sonno salvato!" : "Errore nel salvataggio.";
+  if (risposta.ok) {
+    document.getElementById("form-sonno-manuale").reset();
+    caricaSonno();
+  }
+});
+
+
 // --- Gestione invio form allenamento ---
 document.getElementById("form-allenamento").addEventListener("submit", async (evento) => {
   evento.preventDefault();

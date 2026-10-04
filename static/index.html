@@ -119,11 +119,35 @@
   </div>
 
   <section class="card">
+  <h2>Aggiungi passi manualmente</h2>
+  <form id="form-passi">
+    <input type="date" id="data-passi" required>
+    <input type="number" id="numero_passi" placeholder="Numero di passi" required>
+    <input type="number" id="distanza_km_passi" placeholder="Distanza km (opzionale)" step="0.01">
+    <button type="submit">Salva passi</button>
+  </form>
+  <p id="messaggio-form-passi"></p>
+</section>
+
+  <section class="card">
     <h2>Sonno</h2>
     <div class="table-scroll">
       <table id="tabella-sonno"></table>
     </div>
   </section>
+
+  <section class="card">
+  <h2>Aggiungi dati sonno manualmente</h2>
+  <form id="form-sonno-manuale">
+    <input type="date" id="data-sonno-manuale" required>
+    <input type="number" id="ore_totali_manuale" placeholder="Ore totali di sonno" step="0.01" required>
+    <input type="number" id="leggero_manuale" placeholder="Ore sonno leggero (opzionale)" step="0.01">
+    <input type="number" id="profondo_manuale" placeholder="Ore sonno profondo (opzionale)" step="0.01">
+    <input type="number" id="rem_manuale" placeholder="Ore sonno REM (opzionale)" step="0.01">
+    <button type="submit">Salva sonno</button>
+  </form>
+  <p id="messaggio-form-sonno-manuale"></p>
+</section>
 
   <section class="card">
     <h2>Allenamenti</h2>
