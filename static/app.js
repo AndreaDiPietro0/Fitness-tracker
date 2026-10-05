@@ -14,11 +14,34 @@ selectTipo.addEventListener("change", () => {
 });
 
 // --- Carica e mostra i dati dei passi ---
+let datiPassi = [];
+let ordinePassi = { campo: "data", crescente: false };
+
 async function caricaPassi() {
   const risposta = await fetch("/dati/passi");
-  const dati = await risposta.json();
+  datiPassi = await risposta.json();
+  disegnaTabellaPassi();
+}
+
+function disegnaTabellaPassi() {
+  const dati = [...datiPassi].sort((a, b) => {
+    const valA = a[ordinePassi.campo];
+    const valB = b[ordinePassi.campo];
+    if (valA < valB) return ordinePassi.crescente ? -1 : 1;
+    if (valA > valB) return ordinePassi.crescente ? 1 : -1;
+    return 0;
+  });
+
   const tabella = document.getElementById("tabella-passi");
-  tabella.innerHTML = "<tr><th>Data</th><th>Passi</th><th></th></tr>";
+  const frecciaData = ordinePassi.campo === "data" ? (ordinePassi.crescente ? "↑" : "↓") : "";
+  const frecciaPassi = ordinePassi.campo === "numero_passi" ? (ordinePassi.crescente ? "↑" : "↓") : "";
+
+  tabella.innerHTML = `<tr>
+    <th onclick="ordinaPassi('data')" style="cursor:pointer;">Data ${frecciaData}</th>
+    <th onclick="ordinaPassi('numero_passi')" style="cursor:pointer;">Passi ${frecciaPassi}</th>
+    <th></th>
+  </tr>`;
+
   dati.forEach(record => {
     tabella.innerHTML += `<tr>
       <td>${record.data}</td>
@@ -28,12 +51,47 @@ async function caricaPassi() {
   });
 }
 
+function ordinaPassi(campo) {
+  if (ordinePassi.campo === campo) {
+    ordinePassi.crescente = !ordinePassi.crescente;
+  } else {
+    ordinePassi.campo = campo;
+    ordinePassi.crescente = true;
+  }
+  disegnaTabellaPassi();
+}
+
 // --- Carica e mostra le misure corporee ---
+let datiMisure = [];
+let ordineMisure = { campo: "data", crescente: false };
+
 async function caricaMisure() {
   const risposta = await fetch("/dati/misure-corporee");
-  const dati = await risposta.json();
+  datiMisure = await risposta.json();
+  disegnaTabellaMisure();
+}
+
+function disegnaTabellaMisure() {
+  const dati = [...datiMisure].sort((a, b) => {
+    const valA = a[ordineMisure.campo];
+    const valB = b[ordineMisure.campo];
+    if (valA < valB) return ordineMisure.crescente ? -1 : 1;
+    if (valA > valB) return ordineMisure.crescente ? 1 : -1;
+    return 0;
+  });
+
   const tabella = document.getElementById("tabella-misure");
-  tabella.innerHTML = "<tr><th>Data</th><th>Peso (kg)</th><th>IMC</th><th>% Grasso</th><th>Massa magra (kg)</th><th></th></tr>";
+  const freccia = (campo) => ordineMisure.campo === campo ? (ordineMisure.crescente ? "↑" : "↓") : "";
+
+  tabella.innerHTML = `<tr>
+    <th onclick="ordinaMisure('data')" style="cursor:pointer;">Data ${freccia("data")}</th>
+    <th onclick="ordinaMisure('peso_kg')" style="cursor:pointer;">Peso (kg) ${freccia("peso_kg")}</th>
+    <th>IMC</th>
+    <th>% Grasso</th>
+    <th>Massa magra (kg)</th>
+    <th></th>
+  </tr>`;
+
   dati.forEach(record => {
     tabella.innerHTML += `<tr>
       <td>${record.data}</td>
@@ -44,6 +102,16 @@ async function caricaMisure() {
       <td><button onclick="eliminaDato('misura-corporea', '${record.data}')">Elimina</button></td>
     </tr>`;
   });
+}
+
+function ordinaMisure(campo) {
+  if (ordineMisure.campo === campo) {
+    ordineMisure.crescente = !ordineMisure.crescente;
+  } else {
+    ordineMisure.campo = campo;
+    ordineMisure.crescente = true;
+  }
+  disegnaTabellaMisure();
 }
 
 document.getElementById("form-passi").addEventListener("submit", async (evento) => {
@@ -144,11 +212,30 @@ const risposta = await fetch("/webhook/allenamento", {
   }
 });
 
+let datiSonno = [];
+let ordineSonnoCrescente = false;
+
 async function caricaSonno() {
   const risposta = await fetch("/dati/sonno");
-  const dati = await risposta.json();
+  datiSonno = await risposta.json();
+  disegnaTabellaSonno();
+}
+
+function disegnaTabellaSonno() {
+  const dati = [...datiSonno].sort((a, b) => {
+    if (a.data < b.data) return ordineSonnoCrescente ? -1 : 1;
+    if (a.data > b.data) return ordineSonnoCrescente ? 1 : -1;
+    return 0;
+  });
+
   const tabella = document.getElementById("tabella-sonno");
-  tabella.innerHTML = "<tr><th>Data</th><th>Ore totali</th><th>Leggero</th><th>Profondo</th><th>REM</th><th></th><th></th></tr>";
+  const freccia = ordineSonnoCrescente ? "↑" : "↓";
+
+  tabella.innerHTML = `<tr>
+    <th onclick="ordinaSonno()" style="cursor:pointer;">Data ${freccia}</th>
+    <th>Ore totali</th><th>Leggero</th><th>Profondo</th><th>REM</th><th></th><th></th>
+  </tr>`;
+
   dati.forEach(record => {
     tabella.innerHTML += `<tr>
       <td>${record.data}</td>
@@ -160,6 +247,11 @@ async function caricaSonno() {
       <td><button onclick="eliminaDato('sonno', '${record.data}')">Elimina</button></td>
     </tr>`;
   });
+}
+
+function ordinaSonno() {
+  ordineSonnoCrescente = !ordineSonnoCrescente;
+  disegnaTabellaSonno();
 }
 
 async function salvaFasiSonno(data) {
@@ -190,11 +282,37 @@ async function salvaFasiSonno(data) {
   }
 }
 
+let datiAllenamenti = [];
+let ordineAllenamenti = { campo: "data", crescente: false };
+
 async function caricaAllenamenti() {
   const risposta = await fetch("/dati/allenamenti");
-  const dati = await risposta.json();
+  datiAllenamenti = await risposta.json();
+  disegnaTabellaAllenamenti();
+}
+
+function disegnaTabellaAllenamenti() {
+  const dati = [...datiAllenamenti].sort((a, b) => {
+    const valA = a[ordineAllenamenti.campo];
+    const valB = b[ordineAllenamenti.campo];
+    if (valA == null) return 1;
+    if (valB == null) return -1;
+    if (valA < valB) return ordineAllenamenti.crescente ? -1 : 1;
+    if (valA > valB) return ordineAllenamenti.crescente ? 1 : -1;
+    return 0;
+  });
+
   const tabella = document.getElementById("tabella-allenamenti");
-  tabella.innerHTML = "<tr><th>Data</th><th>Tipo</th><th>Durata (min)</th><th>Calorie</th><th>Distanza (km)</th><th>FC media</th><th>FC max</th><th>Passi allenamento</th><th></th></tr>";
+  const freccia = (campo) => ordineAllenamenti.campo === campo ? (ordineAllenamenti.crescente ? "↑" : "↓") : "";
+
+  tabella.innerHTML = `<tr>
+    <th onclick="ordinaAllenamenti('data')" style="cursor:pointer;">Data ${freccia("data")}</th>
+    <th>Tipo</th>
+    <th onclick="ordinaAllenamenti('durata_minuti')" style="cursor:pointer;">Durata (min) ${freccia("durata_minuti")}</th>
+    <th onclick="ordinaAllenamenti('calorie_stimate')" style="cursor:pointer;">Calorie ${freccia("calorie_stimate")}</th>
+    <th>Distanza (km)</th><th>FC media</th><th>FC max</th><th>Passi allenamento</th><th></th>
+  </tr>`;
+
   dati.forEach(record => {
     tabella.innerHTML += `<tr>
       <td>${record.data}</td>
@@ -208,6 +326,16 @@ async function caricaAllenamenti() {
       <td><button onclick="eliminaAllenamento(${record.id})">Elimina</button></td>
     </tr>`;
   });
+}
+
+function ordinaAllenamenti(campo) {
+  if (ordineAllenamenti.campo === campo) {
+    ordineAllenamenti.crescente = !ordineAllenamenti.crescente;
+  } else {
+    ordineAllenamenti.campo = campo;
+    ordineAllenamenti.crescente = true;
+  }
+  disegnaTabellaAllenamenti();
 }
 
 document.getElementById("form-chat").addEventListener("submit", async (evento) => {

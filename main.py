@@ -1,6 +1,6 @@
-from fastapi import FastAPI, Header, HTTPException, Depends
+from fastapi import FastAPI, Header, HTTPException, Depends, Response
 from pydantic import BaseModel
-from datetime import date
+from datetime import date, timedelta
 from sqlalchemy.orm import sessionmaker
 from models import engine, Allenamento, Sonno, MisuraCorporea, Pisolino, Passi
 from fastapi.staticfiles import StaticFiles
@@ -300,6 +300,49 @@ def leggi_allenamenti():
     risultati = db.query(Allenamento).all()
     db.close()
     return risultati
+
+# riepilogo dati
+@app.get("/export/riepilogo")
+def esporta_riepilogo(giorni: int = 30):
+    db = SessionLocal()
+    data_inizio = (date.today() - timedelta(days=giorni)).isoformat()
+
+    passi = db.query(Passi).filter(Passi.data >= data_inizio).all()
+    sonno = db.query(Sonno).filter(Sonno.data >= data_inizio).all()
+    allenamenti = db.query(Allenamento).filter(Allenamento.data >= data_inizio).all()
+    misure = db.query(MisuraCorporea).filter(MisuraCorporea.data >= data_inizio).all()
+    db.close()
+
+    testo = f"# Riepilogo dati fitness — ultimi {giorni} giorni\n\n"
+
+    testo += "## Passi\n"
+    for p in passi:
+        testo += f"- {p.data}: {p.numero_passi} passi\n"
+
+    testo += "\n## Sonno\n"
+    for s in sonno:
+        testo += f"- {s.data}: {s.ore_totali}h totali"
+        if s.ore_sonno_profondo:
+            testo += f" (profondo: {s.ore_sonno_profondo}h, REM: {s.ore_sonno_rem}h, leggero: {s.ore_sonno_leggero}h)"
+        testo += "\n"
+
+    testo += "\n## Allenamenti\n"
+    for a in allenamenti:
+        testo += f"- {a.data}: {a.tipo_attivita}, {a.durata_minuti} min"
+        if a.distanza_km:
+            testo += f", {a.distanza_km} km"
+        if a.frequenza_cardiaca_media:
+            testo += f", FC media {a.frequenza_cardiaca_media}"
+        testo += "\n"
+
+    testo += "\n## Misure corporee\n"
+    for m in misure:
+        testo += f"- {m.data}: {m.peso_kg} kg"
+        if m.percentuale_grasso:
+            testo += f", {m.percentuale_grasso}% grasso"
+        testo += "\n"
+
+    return Response(content=testo, media_type="text/plain")
 
 @app.delete("/webhook/passi/{data}")
 def elimina_passi(data: str, _=Depends(verifica_chiave)):
