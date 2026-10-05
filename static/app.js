@@ -233,16 +233,16 @@ function disegnaTabellaSonno() {
 
   tabella.innerHTML = `<tr>
     <th onclick="ordinaSonno()" style="cursor:pointer;">Data ${freccia}</th>
-    <th>Ore totali</th><th>Leggero</th><th>Profondo</th><th>REM</th><th></th><th></th>
+    <th>Ore totali</th><th>REM</th><th>Leggero</th><th>Profondo</th><th></th><th></th>
   </tr>`;
 
   dati.forEach(record => {
     tabella.innerHTML += `<tr>
       <td>${record.data}</td>
       <td>${record.ore_totali ?? "-"}</td>
+      <td><input type="number" step="0.01" class="input-rem" data-data="${record.data}" value="${record.ore_sonno_rem ?? ""}"></td>
       <td><input type="number" step="0.01" class="input-leggero" data-data="${record.data}" value="${record.ore_sonno_leggero ?? ""}"></td>
       <td><input type="number" step="0.01" class="input-profondo" data-data="${record.data}" value="${record.ore_sonno_profondo ?? ""}"></td>
-      <td><input type="number" step="0.01" class="input-rem" data-data="${record.data}" value="${record.ore_sonno_rem ?? ""}"></td>
       <td><button onclick="salvaFasiSonno('${record.data}')">Salva</button></td>
       <td><button onclick="eliminaDato('sonno', '${record.data}')">Elimina</button></td>
     </tr>`;
